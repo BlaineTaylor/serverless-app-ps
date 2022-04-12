@@ -14,6 +14,9 @@ This learning path is focused on creating a modern full-stack serverless applica
 * The infrastructure is defined with TypeScript using the [AWS CDK](https://aws.amazon.com/cdk/)
 * Continuous delivery is implemented using an AWS CDK Pipeline
 * No third-party services are leveraged as the focus is on a cloud-native approach with AWS only
+* Environment Variables Needed
+    * CDK_NEW_BOOTSTRAP=1
+    * AWS_PROFILE
 
 ## Following Along
 
