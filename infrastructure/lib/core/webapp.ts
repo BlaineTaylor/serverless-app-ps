@@ -15,7 +15,6 @@ interface WebAppProps {
 }
 
 export class WebApp extends cdk.Construct {
-
     public readonly webDistribution: cloudFront.CloudFrontWebDistribution;
 
     constructor(scope: cdk.Construct, id: string, props: WebAppProps) {
@@ -57,7 +56,7 @@ export class WebApp extends cdk.Construct {
 
         props.hostingBucket.grantRead(oai);
 
-        //Deploy Web App ---------------------------------------------------------
+        // Deploy Web App ---------------------------------------------------------
 
         const deployment = new cwt.WebAppDeployment(this, 'WebAppDeploy', {
             baseDirectory: props.baseDirectory,

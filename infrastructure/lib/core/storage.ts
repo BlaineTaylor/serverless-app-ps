@@ -2,7 +2,6 @@ import * as cdk from '@aws-cdk/core';
 import * as s3 from '@aws-cdk/aws-s3';
 
 export class AssetStorage extends cdk.Construct {
-    
     public readonly uploadBucket: s3.IBucket;
 
     public readonly hostingBucket: s3.IBucket;

@@ -1,18 +1,19 @@
 import * as cdk from '@aws-cdk/core';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as apigw from '@aws-cdk/aws-apigatewayv2';
-import { CorsHttpMethod, HttpMethod} from '@aws-cdk/aws-apigatewayv2';
+import { CorsHttpMethod, HttpMethod } from '@aws-cdk/aws-apigatewayv2';
 import * as apigi from '@aws-cdk/aws-apigatewayv2-integrations';
 import * as iam from '@aws-cdk/aws-iam';
 import * as sqs from '@aws-cdk/aws-sqs';
 
 interface ApplicationAPIProps {
     commentsService: lambda.IFunction;
+    documentService: lambda.IFunction;
 }
 
 export class ApplicationAPI extends cdk.Construct {
     public readonly httpApi: apigw.HttpApi;
-    
+
     constructor(scope: cdk.Construct, id: string, props: ApplicationAPIProps) {
         super(scope, id);
 
@@ -44,7 +45,7 @@ export class ApplicationAPI extends cdk.Construct {
             },
         });
 
-        // Comments Service ----------------------------------------------------
+        // Comments Service ---------------------------------------------------
 
         const commentsServiceIntegration = new apigi.LambdaProxyIntegration({
             handler: props.commentsService,
@@ -56,7 +57,19 @@ export class ApplicationAPI extends cdk.Construct {
             integration: commentsServiceIntegration
         });
 
-        // Moderate -------------------------------------------------------------
+        // Documents Service --------------------------------------------------
+
+        const documentsServiceIntegration = new apigi.LambdaProxyIntegration({
+            handler: props.documentService,
+        });
+
+        this.httpApi.addRoutes({
+            path: `/documents/{proxy+}`,
+            methods: serviceMethods,
+            integration: documentsServiceIntegration,
+        })
+
+        // Moderate -----------------------------------------------------------
 
         const queue = new sqs.Queue(this, 'ModerationQueue');
 

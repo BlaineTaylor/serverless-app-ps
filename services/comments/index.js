@@ -20,6 +20,9 @@ import { AWSClients, generateID } from '../common';
 const dynamoDB = AWSClients.dynamoDB();
 const tableName = process.env.DYNAMO_DB_TABLE;
 
+// Get the EventBridge client
+const eventbridge = AWSClients.eventbridge();
+
 const schemas = {
     createComment: require('./schemas/createComment.json'),
     deleteComment: require('./schemas/deleteComment.json'),
@@ -49,20 +52,40 @@ const createComment = async (request, response) => {
     const userId = 'fc4cec10-6ae4-435c-98ca-6964382fee77'; // Hard-coded until we put users in place
     const commentId = `Comment#${generateID()}`;
     const item = {
-        PK: request.pathVariables.docid,
-        SK: commentId,
-        DateAdded: new Date().toISOString(),
-        Owner: userId,
-        ...JSON.parse(request.event.body),
+      PK: request.pathVariables.docid,
+      SK: commentId,
+      DateAdded: new Date().toISOString(),
+      Owner: userId,
+      ...JSON.parse(request.event.body),
     };
     const params = {
-        TableName: tableName,
-        Item: item,
-        ReturnValues: 'NONE',
+      TableName: tableName,
+      Item: item,
+      ReturnValues: 'NONE',
     };
     await dynamoDB.put(params).promise();
+  
+    // Send comment event using Eventbridge
+    // This will allow us to connect into this event for notifications
+    const detail = {
+      documentId: request.pathVariables.docid,
+      commentId,
+    };
+    const eventParams = {
+      Entries: [
+        {
+          Detail: JSON.stringify(detail),
+          DetailType: 'CommentAdded',
+          EventBusName: 'com.globomantics.dms',
+          Resources: [],
+          Source: 'com.globomantics.dms.comments',
+        },
+      ],
+    };
+    await eventbridge.putEvents(eventParams).promise();
+  
     return response.output(item, 200);
-};
+  };
 
 //Deletes a comment
 const deleteComment = async (request, response) => {
