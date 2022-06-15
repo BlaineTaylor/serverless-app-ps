@@ -4,6 +4,7 @@ import { AppDatabase } from './database';
 import { AppServices } from './services';
 import { AssetStorage } from './storage';
 import { ApplicationEvents } from './events';
+import { ApplicationAuth } from './auth';
 import { DocumentProcessing } from './processing';
 import { WebApp } from './webapp';
 import { S3CloudTrail } from './storageCloudTrail';
@@ -13,6 +14,8 @@ export class ApplicationStack extends cdk.Stack {
     super(scope, id, props);
 
     const storage = new AssetStorage(this, 'Storage');
+
+    const auth = new ApplicationAuth(this, 'Auth');
 
     new S3CloudTrail(this, 'S3CloudTrail', {
       bucketToTrackUploads: storage.uploadBucket,
@@ -47,7 +50,9 @@ export class ApplicationStack extends cdk.Stack {
       hostingBucket: storage.hostingBucket,
       baseDirectory: '../',
       relativeWebAppPath: 'webapp',
-      httpApi: api.httpApi
+      httpApi: api.httpApi,
+      userPool: auth.userPool,
+      userPoolClient: auth.userPoolClient,
     });
   }
 }

@@ -6,6 +6,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import { Auth } from 'aws-amplify';
 import { useUser } from '../UserContext';
+import AuthGroupWrapper from './AuthGroupWrapper';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -89,7 +90,9 @@ function UserBadge() {
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
                   <MenuItem onClick={onProfileEdit}>Edit My Profile</MenuItem>
-                  <MenuItem onClick={onManageUsers}>Manage Users</MenuItem>
+                  <AuthGroupWrapper requiredGroups={['admin']}>
+                    <MenuItem onClick={onManageUsers}>Manage Users</MenuItem>
+                  </AuthGroupWrapper>
                   <MenuItem onClick={signOut}>Logout</MenuItem>
                 </MenuList>
               </ClickAwayListener>
