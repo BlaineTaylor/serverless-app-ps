@@ -27,11 +27,15 @@ export class ApplicationStack extends cdk.Stack {
       documentsTable: database.documentsTable,
       uploadBucket: storage.uploadBucket,
       assetBucket: storage.assetBucket,
+      userPool: auth.userPool,
     });
 
     const api = new ApplicationAPI(this, 'API', {
       commentsService: services.commentsService,
       documentService: services.documentsService,
+      userPool: auth.userPool,
+      userPoolClient: auth.userPoolClient,
+      usersService: services.usersService,
     });
 
     const processing = new DocumentProcessing(this, 'Processing', {
