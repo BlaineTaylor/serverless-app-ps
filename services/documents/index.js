@@ -16,7 +16,8 @@
    createRouter,
    RouterType,
    Matcher,
-   enforceGroupMembership
+   enforceGroupMembership,
+   getLogger
  } from 'lambda-micro';
  import { AWSClients, generateID } from '../common';
  
@@ -81,16 +82,22 @@
  
  // Get all documents
  const getAllDocuments = async (request, response) => {
-   const params = {
-     TableName: tableName,
-     IndexName: 'GSI1',
-     KeyConditionExpression: 'SK = :key ',
-     ExpressionAttributeValues: {
-       ':key': 'Doc#Marketing',
-     },
-   };
-   const results = await dynamoDB.query(params).promise();
-   return response.output(results.Items, 200);
+    const logger = getLogger(request.event, request.context);
+    logger.trace('Sample Trace');
+    logger.debug('Sample Debug');
+    logger.info('Sample Info');
+    logger.warn('Sample Warn');
+    logger.error('Sample Error');
+    const params = {
+      TableName: tableName,
+      IndexName: 'GSI1',
+      KeyConditionExpression: 'SK = :key ',
+      ExpressionAttributeValues: {
+        ':key': 'Doc#Marketing',
+      },
+    };
+    const results = await dynamoDB.query(params).promise();
+    return response.output(results.Items, 200);
  };
  
  // Gets a single document based on the path variable
@@ -149,7 +156,7 @@
        contentType: file.contentType,
        fileName: file.fileName,
      },
-     Owner: 'fc4cec10-6ae4-435c-98ca-6964382fee77', // Hard-coded until we put users in place
+     Owner: request.event.requestContext.authorizer.jwt.claims.username,
      Name: fields.name,
    };
  

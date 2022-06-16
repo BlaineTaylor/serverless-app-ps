@@ -8,6 +8,7 @@ import { ApplicationAuth } from './auth';
 import { DocumentProcessing } from './processing';
 import { WebApp } from './webapp';
 import { S3CloudTrail } from './storageCloudTrail';
+import { ApplicationMonitoring } from './monitoring';
 
 export class ApplicationStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -58,5 +59,15 @@ export class ApplicationStack extends cdk.Stack {
       userPool: auth.userPool,
       userPoolClient: auth.userPoolClient,
     });
+
+    new ApplicationMonitoring(this, 'Monitoring', {
+      api: api.httpApi,
+      table: database.documentsTable,
+      processingStateMachine: processing.processingStateMachine,
+      assetsBucket: storage.assetBucket,
+      documentsService: services.documentsService,
+      commentsService: services.commentsService,
+      usersService: services.usersService,
+    })
   }
 }
